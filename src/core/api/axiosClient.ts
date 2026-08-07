@@ -100,9 +100,36 @@ axiosClient.interceptors.request.use(
   (error) => Promise.reject(error)
 );
 
+// BE bọc mọi response trong một envelope chuẩn của NestJS
+// (interceptor toàn cục): { success, statusCode, message, data, timestamp, path }.
+// Phần `data` bên trong envelope này mới là payload thật sự mà các
+// hook/feature ở FE thao tác (vd: { data: { user }, message }), nên cần
+// bóc lớp envelope ra ngay tại đây để phía trên không phải quan tâm tới nó.
+interface IBackendEnvelope<T = unknown> {
+  success: boolean;
+  statusCode: number;
+  data: T;
+  timestamp: string;
+  path: string;
+}
+
+function isBackendEnvelope(data: unknown): data is IBackendEnvelope {
+  return (
+    typeof data === "object" &&
+    data !== null &&
+    "success" in data &&
+    "data" in data
+  );
+}
+
 // ---- Response Interceptor: Refresh Token Rotation ----
 axiosClient.interceptors.response.use(
-  (response) => response,
+  (response) => {
+    if (isBackendEnvelope(response.data)) {
+      response.data = response.data.data;
+    }
+    return response;
+  },
   async (error: AxiosError) => {
     const originalRequest = error.config as IRetryableRequestConfig | undefined;
     const status = error.response?.status;

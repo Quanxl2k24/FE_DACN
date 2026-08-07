@@ -30,17 +30,30 @@ export interface ILoginResult {
   user: IUser;
 }
 
+/**
+ * Khi tài khoản bật MFA, `/auth/login` không trả `user` ngay mà trả về một
+ * challenge yêu cầu xác thực OTP trước (xem `/auth/verify-otp`).
+ */
+export interface IOtpChallenge {
+  pendingVerificationId: string;
+}
+
+export type ILoginApiResponse =
+  | { isVerify?: false; data: ILoginResult; message: string }
+  | { isVerify: true; data: IOtpChallenge; message: string };
+
+export interface IVerifyOtpPayload extends IOtpChallenge {
+  otp: string;
+}
+
 /** Role có thể tự đăng ký. `ADMIN` chỉ được tạo nội bộ, không qua form này. */
 export type RegisterRole = Exclude<UserType, "ADMIN">;
 
 export interface IRegisterPayload {
   fullName: string;
   email: string;
-  username: string;
   password: string;
   type: RegisterRole;
-  /** Bắt buộc khi `type` là `RECRUITER`. */
-  companyName?: string;
 }
 
 export interface IRegisterResult {

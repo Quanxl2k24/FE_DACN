@@ -54,7 +54,6 @@ Button: Tiếp tục với tư cách Nhà tuyển dụng
 
 - Full Name \*
 - Email \*
-- Username \*
 - Password \*
 - Confirm Password \*
 - Role: (Read only according to selected card)
@@ -62,7 +61,7 @@ Button: Tiếp tục với tư cách Nhà tuyển dụng
 
 **Validation:**
 
-- Email format, Username unique
+- Email format unique
 - Password minimum 8 characters (Uppercase, Lowercase, Number, Special character)
 - Confirm password must match
 

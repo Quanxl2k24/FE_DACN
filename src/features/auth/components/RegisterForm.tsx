@@ -39,17 +39,21 @@ export function RegisterForm({ role, onBack }: RegisterFormProps) {
     formState: { errors },
   } = useForm<RegisterFormValues>({
     resolver: zodResolver(registerSchema),
-    defaultValues: { role, fullName: "", email: "", username: "", password: "", confirmPassword: "", companyName: "" },
+    defaultValues: {
+      role,
+      fullName: "",
+      email: "",
+      password: "",
+      confirmPassword: "",
+    },
   });
 
   const onSubmit = (values: RegisterFormValues) => {
     mutate({
       fullName: values.fullName,
       email: values.email,
-      username: values.username,
       password: values.password,
       type: values.role,
-      companyName: values.role === "RECRUITER" ? values.companyName : undefined,
     });
   };
 
@@ -102,37 +106,6 @@ export function RegisterForm({ role, onBack }: RegisterFormProps) {
         )}
       </div>
 
-      <div className="flex flex-col gap-1.5">
-        <Label htmlFor="username">Tên đăng nhập</Label>
-        <Input
-          id="username"
-          autoComplete="username"
-          placeholder="nguyenvana"
-          aria-invalid={!!errors.username}
-          {...register("username")}
-        />
-        {errors.username && (
-          <p className="text-sm text-destructive">{errors.username.message}</p>
-        )}
-      </div>
-
-      {role === "RECRUITER" && (
-        <div className="flex flex-col gap-1.5">
-          <Label htmlFor="companyName">Tên công ty</Label>
-          <Input
-            id="companyName"
-            autoComplete="organization"
-            placeholder="Công ty TNHH ABC"
-            aria-invalid={!!errors.companyName}
-            {...register("companyName")}
-          />
-          {errors.companyName && (
-            <p className="text-sm text-destructive">
-              {errors.companyName.message}
-            </p>
-          )}
-        </div>
-      )}
 
       <div className="flex flex-col gap-1.5">
         <Label htmlFor="password">Mật khẩu</Label>

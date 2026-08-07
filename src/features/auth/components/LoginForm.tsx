@@ -3,25 +3,29 @@
 import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
-import { useForm, Controller } from "react-hook-form";
+import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Eye, EyeOff, Loader2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Checkbox } from "@/components/ui/checkbox";
 import { useLogin } from "@/features/auth/hooks/useLogin";
 import { useAuthStore } from "@/store/useAuthStore";
 import { ROLE_HOME_PATH } from "@/features/auth/constants";
+import type { IOtpChallenge } from "@/features/auth/types";
 import {
   loginSchema,
   type LoginFormValues,
 } from "@/features/auth/schemas/loginSchema";
 
-export function LoginForm() {
+interface LoginFormProps {
+  onOtpRequired: (challenge: IOtpChallenge) => void;
+}
+
+export function LoginForm({ onOtpRequired }: LoginFormProps) {
   const router = useRouter();
   const [showPassword, setShowPassword] = useState(false);
-  const { mutate, isPending } = useLogin();
+  const { mutate, isPending } = useLogin({ onOtpRequired });
 
   const isInitialized = useAuthStore((state) => state.isInitialized);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
@@ -37,7 +41,6 @@ export function LoginForm() {
   const {
     register,
     handleSubmit,
-    control,
     formState: { errors },
   } = useForm<LoginFormValues>({
     resolver: zodResolver(loginSchema),

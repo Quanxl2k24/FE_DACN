@@ -3,7 +3,7 @@
 import { useEffect } from "react";
 import { axiosClient } from "@/core/api/axiosClient";
 import { useAuthStore } from "@/store/useAuthStore";
-import type { IApiResponse, ILoginResult } from "@/features/auth/types";
+import type { IApiResponse, IUser } from "@/features/auth/types";
 
 /**
  * Zustand chỉ sống trong memory (không lưu token/localStorage) nên sau mỗi
@@ -26,9 +26,9 @@ export function useBootstrapSession() {
     let isMounted = true;
 
     axiosClient
-      .get<IApiResponse<ILoginResult>>("/auth/me")
+      .get<IApiResponse<IUser>>("/user/profile")
       .then((response) => {
-        if (isMounted) setAuth(response.data.data.user);
+        if (isMounted) setAuth(response.data.data);
       })
       .catch(() => {
         if (isMounted) clearAuth();
