@@ -32,7 +32,10 @@ export function JobCard({ job, onEdit, onDelete }: JobCardProps) {
     <div className="flex flex-col gap-4 rounded-2xl border border-border bg-card p-5 shadow-sm">
       <div className="flex items-start justify-between gap-3">
         <div>
-          <p className="text-lg font-bold text-foreground">{job.title}</p>
+          <div className="flex flex-wrap items-center gap-2">
+            <p className="text-lg font-bold text-foreground">{job.title}</p>
+            {job.category && <Badge variant="secondary">{job.category.name}</Badge>}
+          </div>
           <p className="text-sm text-muted-foreground">{job.company.name}</p>
         </div>
         <div className="flex shrink-0 items-center gap-2">

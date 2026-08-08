@@ -28,6 +28,7 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { Textarea } from "@/components/ui/textarea";
 import { JOB_STATUS_LABEL, RECRUITER_JOB_STATUSES } from "@/features/jobs/constants";
 import { useCreateJob } from "@/features/jobs/hooks/useCreateJob";
+import { useGetJobCategories } from "@/features/jobs/hooks/useGetJobCategories";
 import { useGetSkills } from "@/features/jobs/hooks/useGetSkills";
 import { useUpdateJob } from "@/features/jobs/hooks/useUpdateJob";
 import { jobSchema, type JobFormValues } from "@/features/jobs/schemas/jobSchema";
@@ -63,6 +64,10 @@ function toJobPayload(values: JobFormValues): Omit<ICreateJobPayload, "companyId
       values.skillIds && values.skillIds.length > 0
         ? values.skillIds
         : undefined,
+    categoryId:
+      values.categoryId && values.categoryId !== "NONE"
+        ? Number(values.categoryId)
+        : undefined,
   };
 }
 
@@ -77,6 +82,7 @@ export function JobFormSheet({
   const { mutate: updateJob, isPending: isUpdating } = useUpdateJob();
   const isPending = isCreating || isUpdating;
   const { data: skills, isLoading: isLoadingSkills } = useGetSkills();
+  const { data: categories, isLoading: isLoadingCategories } = useGetJobCategories();
 
   const {
     register,
@@ -86,7 +92,7 @@ export function JobFormSheet({
     formState: { errors },
   } = useForm<JobFormValues>({
     resolver: zodResolver(jobSchema),
-    defaultValues: { title: "", status: "PUBLISHED" },
+    defaultValues: { title: "", status: "PUBLISHED", categoryId: "NONE" },
   });
 
   useEffect(() => {
@@ -94,6 +100,7 @@ export function JobFormSheet({
     reset({
       title: job?.title ?? "",
       status: (job?.status as JobFormValues["status"]) ?? "PUBLISHED",
+      categoryId: job?.category?.id != null ? String(job.category.id) : "NONE",
       salaryMin: job?.salaryMin != null ? String(job.salaryMin) : "",
       salaryMax: job?.salaryMax != null ? String(job.salaryMax) : "",
       province: job?.province ?? "",
@@ -153,6 +160,31 @@ export function JobFormSheet({
                   {errors.title.message}
                 </p>
               )}
+            </div>
+
+            <div className="flex flex-col gap-1.5">
+              <Label htmlFor="jobCategory">Danh mục ngành nghề</Label>
+              <Controller
+                name="categoryId"
+                control={control}
+                render={({ field }) => (
+                  <Select value={field.value} onValueChange={field.onChange}>
+                    <SelectTrigger id="jobCategory" className="w-full">
+                      <SelectValue
+                        placeholder={isLoadingCategories ? "Đang tải..." : "Chưa chọn danh mục"}
+                      />
+                    </SelectTrigger>
+                    <SelectContent>
+                      <SelectItem value="NONE">Chưa chọn danh mục</SelectItem>
+                      {categories?.map((category) => (
+                        <SelectItem key={category.id} value={String(category.id)}>
+                          {category.name}
+                        </SelectItem>
+                      ))}
+                    </SelectContent>
+                  </Select>
+                )}
+              />
             </div>
 
             <div className="grid gap-4 sm:grid-cols-2">

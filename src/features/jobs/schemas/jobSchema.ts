@@ -10,6 +10,7 @@ export const jobSchema = z
     status: z.enum(RECRUITER_JOB_STATUSES, {
       message: "Vui lòng chọn trạng thái",
     }),
+    categoryId: z.string().optional(),
     salaryMin: z
       .string()
       .optional()

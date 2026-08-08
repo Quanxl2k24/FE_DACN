@@ -41,7 +41,14 @@ export function JobDetailDialog({ jobId, open, onOpenChange }: JobDetailDialogPr
           <>
             <DialogHeader>
               <div className="flex items-start justify-between gap-3 pr-6">
-                <DialogTitle className="text-lg">{job.title}</DialogTitle>
+                <div>
+                  <DialogTitle className="text-lg">{job.title}</DialogTitle>
+                  {job.category && (
+                    <Badge variant="secondary" className="mt-1.5">
+                      {job.category.name}
+                    </Badge>
+                  )}
+                </div>
                 <Badge
                   variant="outline"
                   className={`shrink-0 ${JOB_STATUS_BADGE_CLASS[job.status]}`}

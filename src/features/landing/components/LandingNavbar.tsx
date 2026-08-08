@@ -1,7 +1,11 @@
+"use client";
+
 import Link from "next/link";
 import { BriefcaseBusiness } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
+import { UserNavMenu } from "@/features/landing/components/UserNavMenu";
+import { useAuthStore } from "@/store/useAuthStore";
 
 const NAV_LINKS = [
   { label: "Việc làm", href: "#featured-jobs" },
@@ -11,6 +15,9 @@ const NAV_LINKS = [
 ];
 
 export function LandingNavbar() {
+  const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
+  const user = useAuthStore((state) => state.user);
+
   return (
     <header className="sticky top-0 z-40 border-b border-border/80 bg-background/85 backdrop-blur">
       <div className="mx-auto flex h-16 max-w-7xl items-center justify-between px-4 sm:px-6 lg:px-8">
@@ -36,17 +43,23 @@ export function LandingNavbar() {
         </nav>
 
         <div className="flex items-center gap-2 sm:gap-3">
-          <Button
-            variant="ghost"
-            size="lg"
-            nativeButton={false}
-            render={<Link href="/login">Đăng nhập</Link>}
-          />
-          <Button
-            size="lg"
-            nativeButton={false}
-            render={<Link href="/register">Đăng ký</Link>}
-          />
+          {isAuthenticated && user ? (
+            <UserNavMenu user={user} />
+          ) : (
+            <>
+              <Button
+                variant="ghost"
+                size="lg"
+                nativeButton={false}
+                render={<Link href="/login">Đăng nhập</Link>}
+              />
+              <Button
+                size="lg"
+                nativeButton={false}
+                render={<Link href="/register">Đăng ký</Link>}
+              />
+            </>
+          )}
         </div>
       </div>
     </header>

@@ -29,6 +29,8 @@ export interface IJobListItem {
   expiredAt: string | null;
   company: IJobCompany;
   _count: { applications: number };
+  /** null nếu job chưa gán danh mục. */
+  category?: IJobCategoryRef | null;
 }
 
 /** Shape chưa được BE xác nhận chi tiết, `jobSkills` hiện luôn trả rỗng trong ví dụ mẫu. */
@@ -45,11 +47,12 @@ export interface ISkill {
   updatedAt: string;
 }
 
-/** Response đầy đủ của tạo/sửa tin (POST /jobs, PATCH /jobs/:id). */
+/** Response đầy đủ của tạo/sửa tin (POST /jobs, PATCH /jobs/:id) và GET /jobs/jobdetail/:id. */
 export interface IJob {
   id: string;
   companyId: string;
   createdBy: string;
+  jobCategoryId: number | null;
   title: string;
   status: JobStatus;
   salaryMin: number | null;
@@ -65,6 +68,8 @@ export interface IJob {
   deletedAt: string | null;
   company: IJobCompany;
   jobSkills: IJobSkill[];
+  /** Chỉ có trong GET /jobs/jobdetail/:id — null nếu job chưa gán danh mục. */
+  category?: IJobCategoryRef | null;
 }
 
 export interface ICursorPagination {
@@ -86,6 +91,7 @@ export interface IJobFilters {
   skillIds?: number[];
   sort?: "salary_asc" | "salary_desc";
   take?: number;
+  categoryId?: number;
 }
 
 export interface ICreateJobPayload {
@@ -102,6 +108,46 @@ export interface ICreateJobPayload {
   /** ISO date string. */
   expiredAt?: string;
   skillIds?: number[];
+  categoryId?: number;
 }
 
 export type IUpdateJobPayload = Partial<Omit<ICreateJobPayload, "companyId">>;
+
+/** Item trong danh mục GET /job-categories — chỉ trả category active, sắp theo name asc. */
+export interface IJobCategory {
+  id: number;
+  name: string;
+  active: boolean;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/** Category rút gọn gắn kèm trong job (list/detail) — null nếu job chưa gán danh mục. */
+export interface IJobCategoryRef {
+  id: number;
+  name: string;
+}
+
+/** Item trong danh sách GET /jobs (public, không cần đăng nhập). */
+export interface IPublicJobListItem {
+  id: string;
+  title: string;
+  salaryMin: number | null;
+  salaryMax: number | null;
+  address: string | null;
+  province: string | null;
+  createdAt: string;
+  company: { name: string; logoUrl: string | null };
+  category: IJobCategoryRef | null;
+}
+
+export interface IPublicJobFilters {
+  keyword?: string;
+  skillIds?: number[];
+  salaryFrom?: number;
+  salaryTo?: number;
+  province?: string;
+  sort?: "salary_asc" | "salary_desc";
+  take?: number;
+  categoryId?: number;
+}
