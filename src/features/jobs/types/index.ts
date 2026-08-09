@@ -122,6 +122,15 @@ export interface IJobCategory {
   updatedAt: string;
 }
 
+export interface ICreateJobCategoryPayload {
+  name: string;
+}
+
+export interface IUpdateJobCategoryPayload {
+  name?: string;
+  active?: boolean;
+}
+
 /** Category rút gọn gắn kèm trong job (list/detail) — null nếu job chưa gán danh mục. */
 export interface IJobCategoryRef {
   id: number;

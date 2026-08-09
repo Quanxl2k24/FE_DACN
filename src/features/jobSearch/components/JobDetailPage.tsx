@@ -4,6 +4,7 @@ import type { ReactNode } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import type { AxiosError } from "axios";
+import { useState } from "react";
 import {
   ArrowLeft,
   ArrowRight,
@@ -11,6 +12,7 @@ import {
   CalendarClock,
   CalendarDays,
   CalendarX2,
+  Flag,
   Heart,
   MapPin,
   ServerCrash,
@@ -31,6 +33,7 @@ import { formatDate, formatExpiredAt, formatSalaryRange } from "@/features/jobs/
 import { ExpandableText } from "@/features/jobSearch/components/ExpandableText";
 import { JobDetailSidebar } from "@/features/jobSearch/components/JobDetailSidebar";
 import { isRecentlyPosted } from "@/features/jobSearch/utils";
+import { ReportJobDialog } from "@/features/jobReports/components/ReportJobDialog";
 import { useAuthStore } from "@/store/useAuthStore";
 
 interface JobDetailPageProps {
@@ -93,6 +96,7 @@ export function JobDetailPage({ jobId }: JobDetailPageProps) {
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
   const user = useAuthStore((state) => state.user);
   const { data: job, isLoading, isError, error } = useGetJobDetail(jobId, true);
+  const [reportOpen, setReportOpen] = useState(false);
 
   const axiosError = error as AxiosError<IApiResponse> | null;
   const statusCode = axiosError?.response?.status;
@@ -112,6 +116,14 @@ export function JobDetailPage({ jobId }: JobDetailPageProps) {
       return;
     }
     toast.info("Tính năng lưu tin đang được phát triển.");
+  };
+
+  const handleReport = () => {
+    if (!isAuthenticated) {
+      router.push("/login");
+      return;
+    }
+    setReportOpen(true);
   };
 
   return (
@@ -247,7 +259,22 @@ export function JobDetailPage({ jobId }: JobDetailPageProps) {
                     <Heart className="size-4" />
                     Lưu tin
                   </Button>
+                  <Button
+                    variant="ghost"
+                    size="lg"
+                    className="gap-2 rounded-full text-muted-foreground hover:text-destructive"
+                    onClick={handleReport}
+                  >
+                    <Flag className="size-4" />
+                    Báo cáo
+                  </Button>
                 </div>
+
+                <ReportJobDialog
+                  jobId={job.id}
+                  open={reportOpen}
+                  onOpenChange={setReportOpen}
+                />
 
                 {isAuthenticated && user?.type === "APPLICANT" && (
                   <Link
