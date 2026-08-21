@@ -2,7 +2,6 @@
 
 import { useMemo, useState } from "react";
 import { CalendarX2, Loader2, Plus } from "lucide-react";
-import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
@@ -14,7 +13,8 @@ import { InterviewCard } from "@/features/interviews/components/InterviewCard";
 import { InterviewDetailDialog } from "@/features/interviews/components/InterviewDetailDialog";
 import { WeeklyCalendarStrip } from "@/features/interviews/components/WeeklyCalendarStrip";
 import { useGetInterviews } from "@/features/interviews/hooks/useGetInterviews";
-import type { IInterviewListItem, InterviewResultStatus } from "@/features/interviews/types";
+import { useUpdateInterviewResult } from "@/features/interviews/hooks/useUpdateInterviewResult";
+import type { InterviewResultInput } from "@/features/interviews/types";
 import { getCurrentWeekDays, isSameDay } from "@/features/interviews/utils";
 
 export function InterviewsList({ companyId }: { companyId: string }) {
@@ -22,24 +22,18 @@ export function InterviewsList({ companyId }: { companyId: string }) {
   const [viewingId, setViewingId] = useState<string | null>(null);
   const [candidateSearchOpen, setCandidateSearchOpen] = useState(false);
   const [scheduleCandidate, setScheduleCandidate] = useState<ICandidate | null>(null);
-  // BE không trả applicationId ở endpoint này nên không thể gọi PATCH đổi
-  // trạng thái đơn từ đây — chỉ đổi tạm trên UI để xem trước, không lưu server.
-  const [statusOverrides, setStatusOverrides] = useState<
-    Record<string, InterviewResultStatus>
-  >({});
 
   const weekDays = useMemo(() => getCurrentWeekDays(), []);
 
   const { data, isLoading, fetchNextPage, hasNextPage, isFetchingNextPage } =
     useGetInterviews(companyId, { take: 20 });
+  const { mutate: setResult, isPending: isSettingResult, variables } =
+    useUpdateInterviewResult();
 
   const interviews = useMemo(
     () => data?.pages.flatMap((page) => page.data) ?? [],
     [data],
   );
-
-  const getStatus = (interview: IInterviewListItem) =>
-    statusOverrides[interview.interviewId] ?? interview.status;
 
   const interviewCountByDay = useMemo(() => {
     const map = new Map<string, number>();
@@ -60,9 +54,8 @@ export function InterviewsList({ companyId }: { companyId: string }) {
 
   const viewing = interviews.find((it) => it.interviewId === viewingId) ?? null;
 
-  const handleChangeResult = (interviewId: string, status: InterviewResultStatus) => {
-    setStatusOverrides((prev) => ({ ...prev, [interviewId]: status }));
-    toast.info(`Đã đổi kết quả thành "${status}" trên giao diện — chưa lưu server.`);
+  const handleSetResult = (interviewId: string, result: InterviewResultInput) => {
+    setResult({ companyId, interviewId, result });
   };
 
   return (
@@ -115,8 +108,10 @@ export function InterviewsList({ companyId }: { companyId: string }) {
             <InterviewCard
               key={interview.interviewId}
               interview={interview}
-              status={getStatus(interview)}
-              onChangeResult={handleChangeResult}
+              isUpdating={
+                isSettingResult && variables?.interviewId === interview.interviewId
+              }
+              onSetResult={handleSetResult}
               onViewDetail={(it) => setViewingId(it.interviewId)}
             />
           ))}
@@ -143,7 +138,6 @@ export function InterviewsList({ companyId }: { companyId: string }) {
 
       <InterviewDetailDialog
         interview={viewing}
-        status={viewing ? getStatus(viewing) : "Chưa có kết quả"}
         open={Boolean(viewingId)}
         onOpenChange={(open) => !open && setViewingId(null)}
       />

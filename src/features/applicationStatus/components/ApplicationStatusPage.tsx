@@ -11,6 +11,7 @@ import type { IApiResponse } from "@/features/auth/types";
 import { ApplicationTimeline } from "@/features/applicationStatus/components/ApplicationTimeline";
 import { useGetApplicationStatus } from "@/features/applicationStatus/hooks/useGetApplicationStatus";
 import { formatStepDate } from "@/features/applicationStatus/utils";
+import { OfferResponseCard } from "@/features/offers/components/OfferResponseCard";
 
 function ApplicationStatusPageBase({ jobId }: { jobId: string }) {
   const { data, isLoading, isError, error } = useGetApplicationStatus(jobId);
@@ -77,7 +78,9 @@ function ApplicationStatusPageBase({ jobId }: { jobId: string }) {
               <AlertCircle className="mt-0.5 size-4.5 shrink-0 text-destructive" />
               <div className="text-sm">
                 <p className="font-semibold text-destructive">
-                  Hồ sơ chưa phù hợp ở vị trí này
+                  {data.offer?.status === "DECLINED"
+                    ? "Bạn đã từ chối lời mời nhận việc này"
+                    : "Hồ sơ chưa phù hợp ở vị trí này"}
                 </p>
                 {data.rejectedNote && (
                   <p className="mt-0.5 text-destructive/90">{data.rejectedNote}</p>
@@ -94,6 +97,12 @@ function ApplicationStatusPageBase({ jobId }: { jobId: string }) {
           <div className="mt-6">
             <ApplicationTimeline steps={data.steps} currentStatus={data.currentStatus} />
           </div>
+
+          {data.offer && (
+            <div className="mt-6">
+              <OfferResponseCard jobId={jobId} offer={data.offer} />
+            </div>
+          )}
         </Card>
       )}
     </div>

@@ -13,19 +13,17 @@ import {
 } from "@/components/ui/dialog";
 import { Separator } from "@/components/ui/separator";
 import { INTERVIEW_RESULT_BADGE_CLASS } from "@/features/interviews/constants";
-import type { IInterviewListItem, InterviewResultStatus } from "@/features/interviews/types";
+import type { IInterviewListItem } from "@/features/interviews/types";
 import { formatInterviewDateTime } from "@/features/interviews/utils";
 
 interface InterviewDetailDialogProps {
   interview: IInterviewListItem | null;
-  status: InterviewResultStatus;
   open: boolean;
   onOpenChange: (open: boolean) => void;
 }
 
 export function InterviewDetailDialog({
   interview,
-  status,
   open,
   onOpenChange,
 }: InterviewDetailDialogProps) {
@@ -41,8 +39,11 @@ export function InterviewDetailDialog({
 
         <div className="flex items-center justify-between rounded-xl bg-muted/50 p-3">
           <span className="text-sm text-muted-foreground">Kết quả</span>
-          <Badge variant="outline" className={INTERVIEW_RESULT_BADGE_CLASS[status]}>
-            {status}
+          <Badge
+            variant="outline"
+            className={INTERVIEW_RESULT_BADGE_CLASS[interview.status]}
+          >
+            {interview.status}
           </Badge>
         </div>
 

@@ -6,7 +6,6 @@ import { toast } from "sonner";
 import type { AxiosError } from "axios";
 import { axiosClient } from "@/core/api/axiosClient";
 import { useAuthStore } from "@/store/useAuthStore";
-import { ROLE_HOME_PATH } from "@/features/auth/constants";
 import type {
   IApiResponse,
   ILoginApiResponse,
@@ -41,7 +40,9 @@ export function useLogin({ onOtpRequired }: UseLoginOptions) {
       const { user } = result.data;
       setAuth(user);
       toast.success("Đăng nhập thành công");
-      router.push(ROLE_HOME_PATH[user.type]);
+      // Luôn về landing page sau khi đăng nhập; chuyển sang khu vực quản lý
+      // theo role là hành động chủ động của user (nút "Trang quản lý" ở navbar).
+      router.push("/");
     },
     onError: (error: AxiosError<IApiResponse>) => {
       const message =

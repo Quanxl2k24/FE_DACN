@@ -1,7 +1,7 @@
 "use client";
 
 import Link from "next/link";
-import { LayoutDashboard, LogOut } from "lucide-react";
+import { Briefcase, LayoutDashboard, LogOut, User } from "lucide-react";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -55,6 +55,14 @@ export function UserNavMenu({ user }: { user: IUser }) {
         <DropdownMenuGroup>
           <DropdownMenuLabel>Tài khoản của tôi</DropdownMenuLabel>
         </DropdownMenuGroup>
+        <DropdownMenuItem render={<Link href="/profile" />}>
+          <User /> Thông tin cá nhân
+        </DropdownMenuItem>
+        {user.type === "APPLICANT" && (
+          <DropdownMenuItem render={<Link href="/my-applications" />}>
+            <Briefcase /> Việc làm đã ứng tuyển
+          </DropdownMenuItem>
+        )}
         {showManagementLink && (
           <>
             <DropdownMenuSeparator />

@@ -20,6 +20,8 @@ import { useGetCandidates } from "@/features/applications/hooks/useGetCandidates
 import { useUpdateApplicationStatus } from "@/features/applications/hooks/useUpdateApplicationStatus";
 import type { ApplicationStatus, ICandidate } from "@/features/applications/types";
 import { useGetJobs } from "@/features/jobs/hooks/useGetJobs";
+import { OfferFormDialog } from "@/features/offers/components/OfferFormDialog";
+import { useGetOffer } from "@/features/offers/hooks/useGetOffer";
 
 export function CandidatesList({ companyId }: { companyId: string }) {
   const [nameDraft, setNameDraft] = useState("");
@@ -30,6 +32,7 @@ export function CandidatesList({ companyId }: { companyId: string }) {
   const [filtersOpen, setFiltersOpen] = useState(false);
   const [viewingId, setViewingId] = useState<string | null>(null);
   const [interviewCandidate, setInterviewCandidate] = useState<ICandidate | null>(null);
+  const [offerCandidate, setOfferCandidate] = useState<ICandidate | null>(null);
 
   // Chỉ lấy trang đầu để đổ dữ liệu cho dropdown lọc theo vị trí.
   const { data: jobsData } = useGetJobs(companyId, { take: 50 });
@@ -44,6 +47,12 @@ export function CandidatesList({ companyId }: { companyId: string }) {
     });
 
   const { mutate: updateStatus } = useUpdateApplicationStatus();
+  // Cùng query key với CandidateCard nên dùng lại cache, không gọi lại API.
+  const { data: offerForDialog } = useGetOffer(
+    companyId,
+    offerCandidate?.applicationId,
+    Boolean(offerCandidate),
+  );
 
   const candidates = data?.pages.flatMap((page) => page.data) ?? [];
   const viewing = candidates.find((c) => c.applicationId === viewingId) ?? null;
@@ -151,9 +160,11 @@ export function CandidatesList({ companyId }: { companyId: string }) {
           {candidates.map((candidate) => (
             <CandidateCard
               key={candidate.applicationId}
+              companyId={companyId}
               candidate={candidate}
               onView={(c) => setViewingId(c.applicationId)}
               onSelectStatus={handleSelectStatus}
+              onSendOffer={(c) => setOfferCandidate(c)}
             />
           ))}
         </div>
@@ -189,6 +200,7 @@ export function CandidatesList({ companyId }: { companyId: string }) {
       />
 
       <ApplicationDetailDialog
+        companyId={companyId}
         candidate={viewing}
         open={Boolean(viewingId)}
         onOpenChange={(open) => !open && setViewingId(null)}
@@ -199,6 +211,14 @@ export function CandidatesList({ companyId }: { companyId: string }) {
         candidate={interviewCandidate}
         open={Boolean(interviewCandidate)}
         onOpenChange={(open) => !open && setInterviewCandidate(null)}
+      />
+
+      <OfferFormDialog
+        companyId={companyId}
+        candidate={offerCandidate}
+        offer={offerForDialog ?? null}
+        open={Boolean(offerCandidate)}
+        onOpenChange={(open) => !open && setOfferCandidate(null)}
       />
     </div>
   );

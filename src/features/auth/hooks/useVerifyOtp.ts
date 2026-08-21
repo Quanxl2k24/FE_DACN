@@ -5,7 +5,6 @@ import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { axiosClient } from "@/core/api/axiosClient";
 import { useAuthStore } from "@/store/useAuthStore";
-import { ROLE_HOME_PATH } from "@/features/auth/constants";
 import type { IApiResponse, IUser, IVerifyOtpPayload } from "@/features/auth/types";
 
 interface UseVerifyOtpOptions {
@@ -31,7 +30,9 @@ export function useVerifyOtp({ onVerifyFailed }: UseVerifyOtpOptions) {
     onSuccess: (user) => {
       setAuth(user);
       toast.success("Đăng nhập thành công");
-      router.push(ROLE_HOME_PATH[user.type]);
+      // Luôn về landing page sau khi đăng nhập; chuyển sang khu vực quản lý
+      // theo role là hành động chủ động của user (nút "Trang quản lý" ở navbar).
+      router.push("/");
     },
     onError: () => {
       toast.error("Đăng nhập thất bại, vui lòng thử lại.");

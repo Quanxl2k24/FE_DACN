@@ -1,10 +1,19 @@
-import type { InterviewResultStatus } from "@/features/interviews/types";
+import type { InterviewResultInput, InterviewResultStatus } from "@/features/interviews/types";
 
 /** Đúng thứ tự hiển thị trên toggle kết quả: Đạt — Chờ (Chưa có kết quả) — Trượt. */
 export const INTERVIEW_RESULTS: InterviewResultStatus[] = [
   "Đạt",
   "Chưa có kết quả",
   "Trượt",
+];
+
+/** 2 hành động interviewer có thể bấm sau khi phỏng vấn xong (chỉ khi đang "Chưa có kết quả"). */
+export const INTERVIEW_RESULT_ACTIONS: Array<{
+  label: Extract<InterviewResultStatus, "Đạt" | "Trượt">;
+  result: InterviewResultInput;
+}> = [
+  { label: "Đạt", result: "PASSED" },
+  { label: "Trượt", result: "FAILED" },
 ];
 
 export const INTERVIEW_RESULT_BADGE_CLASS: Record<InterviewResultStatus, string> = {

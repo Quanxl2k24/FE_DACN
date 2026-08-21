@@ -11,7 +11,6 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { useLogin } from "@/features/auth/hooks/useLogin";
 import { useAuthStore } from "@/store/useAuthStore";
-import { ROLE_HOME_PATH } from "@/features/auth/constants";
 import type { IOtpChallenge } from "@/features/auth/types";
 import {
   loginSchema,
@@ -29,14 +28,13 @@ export function LoginForm({ onOtpRequired }: LoginFormProps) {
 
   const isInitialized = useAuthStore((state) => state.isInitialized);
   const isAuthenticated = useAuthStore((state) => state.isAuthenticated);
-  const userType = useAuthStore((state) => state.user?.type);
 
   // Đã có phiên hợp lệ (khôi phục qua bootstrap /auth/me) -> khỏi cần thấy form login.
   useEffect(() => {
-    if (isInitialized && isAuthenticated && userType) {
-      router.replace(ROLE_HOME_PATH[userType]);
+    if (isInitialized && isAuthenticated) {
+      router.replace("/");
     }
-  }, [isInitialized, isAuthenticated, userType, router]);
+  }, [isInitialized, isAuthenticated, router]);
 
   const {
     register,

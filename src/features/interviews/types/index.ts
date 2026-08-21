@@ -32,3 +32,10 @@ export interface IPaginatedResponse<T> {
 export interface IInterviewFilters {
   take?: number;
 }
+
+/** Body PATCH /candidates/manage/:companyId/interviews/:interviewId/result. */
+export type InterviewResultInput = "PASSED" | "FAILED";
+
+export interface IUpdateInterviewResultPayload {
+  result: InterviewResultInput;
+}

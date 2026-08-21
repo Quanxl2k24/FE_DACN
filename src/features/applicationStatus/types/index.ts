@@ -1,3 +1,5 @@
+import type { IOffer } from "@/features/offers/types";
+
 export type ApplicationStepKey =
   | "APPLIED"
   | "SCREENING"
@@ -25,4 +27,5 @@ export interface IApplicationStatusTimeline {
   rejectedNote: string | null;
   rejectedAt: string | null;
   steps: IApplicationStatusStep[];
+  offer: IOffer | null;
 }

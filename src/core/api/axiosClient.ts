@@ -31,6 +31,9 @@ export const axiosClient = axios.create({
   withCredentials: true, // Cho phép gửi/nhận Cookie (accessToken, refreshToken, deviceId)
   headers: {
     "Content-Type": "application/json",
+    // Bỏ qua trang cảnh báo (interstitial) của ngrok khi truy cập qua
+    // tunnel miễn phí — ngrok tự loại header này trước khi forward tới server.
+    "ngrok-skip-browser-warning": "true",
   },
 });
 
@@ -40,6 +43,9 @@ export const axiosClient = axios.create({
 const refreshClient = axios.create({
   baseURL: BASE_URL,
   withCredentials: true,
+  headers: {
+    "ngrok-skip-browser-warning": "true",
+  },
 });
 
 interface IRetryableRequestConfig extends InternalAxiosRequestConfig {

@@ -1,6 +1,6 @@
 "use client";
 
-import { CalendarDays, Download, Eye } from "lucide-react";
+import { CalendarDays, Download, Eye, Gift } from "lucide-react";
 
 import { Avatar, AvatarFallback } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
@@ -14,14 +14,27 @@ import {
   getAvatarColorClass,
   getInitials,
 } from "@/features/applications/utils";
+import { OFFER_STATUS_LABEL } from "@/features/offers/constants";
+import { useGetOffer } from "@/features/offers/hooks/useGetOffer";
 
 interface CandidateCardProps {
+  companyId: string;
   candidate: ICandidate;
   onView: (candidate: ICandidate) => void;
   onSelectStatus: (candidate: ICandidate, status: ApplicationStatus) => void;
+  onSendOffer: (candidate: ICandidate) => void;
 }
 
-export function CandidateCard({ candidate, onView, onSelectStatus }: CandidateCardProps) {
+export function CandidateCard({
+  companyId,
+  candidate,
+  onView,
+  onSelectStatus,
+  onSendOffer,
+}: CandidateCardProps) {
+  const isOffered = candidate.status === "OFFERED";
+  const { data: offer } = useGetOffer(companyId, candidate.applicationId, isOffered);
+
   return (
     <Card className="gap-4 rounded-2xl px-5 [--card-spacing:--spacing(5)]">
       <div className="flex items-start justify-between gap-3">
@@ -44,6 +57,21 @@ export function CandidateCard({ candidate, onView, onSelectStatus }: CandidateCa
         </div>
         <ApplicationStatusBadge status={candidate.status} />
       </div>
+
+      {isOffered && (
+        <Button
+          size="sm"
+          className="w-full rounded-full"
+          onClick={() => onSendOffer(candidate)}
+        >
+          <Gift />
+          {offer
+            ? offer.status === "PENDING"
+              ? "Chỉnh sửa lời mời (chờ phản hồi)"
+              : `Lời mời: ${OFFER_STATUS_LABEL[offer.status]}`
+            : "Gửi lời mời nhận việc"}
+        </Button>
+      )}
 
       <div className="flex items-center gap-2 text-sm text-muted-foreground">
         <CalendarDays className="size-3.5" />
