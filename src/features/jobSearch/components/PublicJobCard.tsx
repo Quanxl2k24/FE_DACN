@@ -8,7 +8,11 @@ import { toast } from "sonner";
 import { Button } from "@/components/ui/button";
 import { formatSalaryRange } from "@/features/jobs/utils";
 import type { IPublicJobListItem } from "@/features/jobs/types";
-import { formatPostedAgo, getCompanyGradientClass, getCompanyInitial } from "@/features/jobSearch/utils";
+import {
+  formatPostedAgo,
+  getCompanyGradientClass,
+  getCompanyInitial,
+} from "@/features/jobSearch/utils";
 import { useAuthStore } from "@/store/useAuthStore";
 import { cn } from "@/lib/utils";
 
@@ -59,14 +63,14 @@ export function PublicJobCard({ job }: PublicJobCardProps) {
             <p className="text-sm text-muted-foreground">{job.company.name}</p>
           </div>
         </div>
-        <button
+        {/* <button
           type="button"
           aria-label="Lưu tin"
           onClick={handleSave}
           className="shrink-0 text-muted-foreground transition-colors hover:text-destructive"
         >
           <Heart className="size-5" />
-        </button>
+        </button> */}
       </div>
 
       <p className="text-lg font-bold text-success">
@@ -89,7 +93,9 @@ export function PublicJobCard({ job }: PublicJobCardProps) {
       <div className="h-px bg-border" />
 
       <div className="flex items-center justify-between text-sm">
-        <span className="text-muted-foreground">{formatPostedAgo(job.createdAt)}</span>
+        <span className="text-muted-foreground">
+          {formatPostedAgo(job.createdAt)}
+        </span>
         <Button
           variant="link"
           className="h-auto gap-1 p-0 font-semibold"

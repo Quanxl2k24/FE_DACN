@@ -12,6 +12,7 @@ import {
   CalendarClock,
   CalendarDays,
   CalendarX2,
+  CheckCircle2,
   Flag,
   Heart,
   MapPin,
@@ -34,6 +35,9 @@ import { ExpandableText } from "@/features/jobSearch/components/ExpandableText";
 import { JobDetailSidebar } from "@/features/jobSearch/components/JobDetailSidebar";
 import { isRecentlyPosted } from "@/features/jobSearch/utils";
 import { ReportJobDialog } from "@/features/jobReports/components/ReportJobDialog";
+import { ApplyJobDialog } from "@/features/jobSearch/components/ApplyJobDialog";
+import { useGetApplicationStatus } from "@/features/applicationStatus/hooks/useGetApplicationStatus";
+import { APPLICATION_STATUS_LABEL, APPLICATION_STATUS_BADGE_CLASS } from "@/features/applications/constants";
 import { useAuthStore } from "@/store/useAuthStore";
 
 interface JobDetailPageProps {
@@ -97,6 +101,17 @@ export function JobDetailPage({ jobId }: JobDetailPageProps) {
   const user = useAuthStore((state) => state.user);
   const { data: job, isLoading, isError, error } = useGetJobDetail(jobId, true);
   const [reportOpen, setReportOpen] = useState(false);
+  const [applyOpen, setApplyOpen] = useState(false);
+
+  // Chỉ fetch trạng thái ứng tuyển khi user đã đăng nhập và là APPLICANT
+  const isApplicant = isAuthenticated && user?.type === "APPLICANT";
+  const {
+    data: applicationStatus,
+    isLoading: isStatusLoading,
+  } = useGetApplicationStatus(isApplicant ? jobId : "");
+
+  // hasApplied = true khi query trả về data (status 200) — nghĩa là đã ứng tuyển
+  const hasApplied = isApplicant && Boolean(applicationStatus);
 
   const axiosError = error as AxiosError<IApiResponse> | null;
   const statusCode = axiosError?.response?.status;
@@ -107,7 +122,7 @@ export function JobDetailPage({ jobId }: JobDetailPageProps) {
       router.push("/login");
       return;
     }
-    toast.info("Tính năng ứng tuyển đang được phát triển.");
+    setApplyOpen(true);
   };
 
   const handleSave = () => {
@@ -247,9 +262,31 @@ export function JobDetailPage({ jobId }: JobDetailPageProps) {
                 )}
 
                 <div className="mt-6 flex flex-col gap-3 sm:flex-row">
-                  <Button size="lg" className="flex-1 gap-2" onClick={handleApply}>
-                    Ứng tuyển ngay
-                  </Button>
+                  {isApplicant && isStatusLoading ? (
+                    /* Skeleton nhỏ khi đang kiểm tra trạng thái */
+                    <Skeleton className="h-9 flex-1 rounded-lg" />
+                  ) : hasApplied ? (
+                    /* Đã ứng tuyển — hiện badge + link trạng thái */
+                    <div className="flex flex-1 items-center gap-2 rounded-lg border border-success/30 bg-success/5 px-4 py-2.5">
+                      <CheckCircle2 className="size-4 shrink-0 text-success" />
+                      <span className="text-sm font-medium text-success">
+                        Đã ứng tuyển
+                      </span>
+                      {applicationStatus?.currentStatus && (
+                        <Badge
+                          variant="outline"
+                          className={APPLICATION_STATUS_BADGE_CLASS[applicationStatus.currentStatus as keyof typeof APPLICATION_STATUS_BADGE_CLASS]}
+                        >
+                          {APPLICATION_STATUS_LABEL[applicationStatus.currentStatus as keyof typeof APPLICATION_STATUS_LABEL]}
+                        </Badge>
+                      )}
+                    </div>
+                  ) : (
+                    /* Chưa ứng tuyển — hiện nút bình thường */
+                    <Button size="lg" className="flex-1 gap-2" onClick={handleApply}>
+                      Ứng tuyển ngay
+                    </Button>
+                  )}
                   <Button
                     variant="outline"
                     size="lg"
@@ -276,7 +313,14 @@ export function JobDetailPage({ jobId }: JobDetailPageProps) {
                   onOpenChange={setReportOpen}
                 />
 
-                {isAuthenticated && user?.type === "APPLICANT" && (
+                <ApplyJobDialog
+                  jobId={job.id}
+                  jobTitle={job.title}
+                  open={applyOpen}
+                  onOpenChange={setApplyOpen}
+                />
+
+                {hasApplied && (
                   <Link
                     href={`/application-status/${job.id}`}
                     className="mt-3 inline-flex items-center gap-1 self-start text-sm font-medium text-primary hover:underline"
